@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>রসায়ন প্র্যাকটিক্যাল ভাইভা - ডার্ক মোড টেস্ট</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --subtext-color: #94a3b8;
+            --border-color: #334155;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --success-color: #065f46;
+            --success-text: #d1fae5;
+            --error-color: #991b1b;
+            --error-text: #fee2e2;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            text-align: center;
+            color: #60a5fa;
+            margin-bottom: 5px;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--subtext-color);
+            margin-bottom: 25px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #334155;
+            border-radius: 8px;
+            height: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #0f172a;
+        }
+
+        .question-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+            color: #f1f5f9;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            margin-bottom: 10px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: #1e293b;
+            color: var(--text-color);
+            transition: all 0.2s;
+        }
+
+        .option-label:hover {
+            border-color: var(--primary-color);
+            background-color: #273548;
+        }
+
+        .option-label input {
+            margin-right: 12px;
+            accent-color: var(--primary-color);
+        }
+
+        .explanation {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .explanation.correct {
+            background-color: var(--success-color);
+            color: var(--success-text);
+            border: 1px solid #059669;
+        }
+
+        .explanation.incorrect {
+            background-color: var(--error-color);
+            color: var(--error-text);
+            border: 1px solid #dc2626;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #result-section {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 1.2rem;
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .result-highlight {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+
+        .score-details {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+
+        .correct-count {
+            color: #34d399;
+            font-weight: bold;
+        }
+
+        .incorrect-count {
+            color: #f87171;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>রসায়ন প্র্যাকটিক্যাল ভাইভা টেস্ট</h1>
+    <p class="subtitle">লবণ বিশ্লেষণ ও KMnO4 টাইটেশন সংক্রান্ত ৫০টি নির্ভুল প্রশ্ন (ডার্ক মোড)</p>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <form id="quizForm">
+        <div id="questionsContainer"></div>
+
+        <div class="btn-container">
+            <button type="button" class="btn" id="submitBtn" onclick="submitQuiz()">ফাইনাল স্কোর দেখুন (Submit)</button>
+            <button type="button" class="btn" id="retryBtn" onclick="retryQuiz()" style="display: none; background-color: #059669;">পুনরায় চেষ্টা করুন (Retry)</button>
+        </div>
+    </form>
+
+    <div id="result-section">
+        <div class="result-highlight" id="mainScoreText"></div>
+        <div class="score-details">
+            <div>সঠিক উত্তর: <span class="correct-count" id="totalCorrect">0</span></div>
+            <div>ভুল/অনাত্তর: <span class="incorrect-count" id="totalIncorrect">0</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            question: "১. অজৈব লবণের ক্যাটায়ন শনাক্তকরণের জন্য শূন্য গ্রুপে (Zero Group) কোন বিকারক ব্যবহার করা হয়?",
+            options: ["নেসলার দ্রবণ", "লঘু HCl", "H2S গ্যাস", "NaOH দ্রবণ"],
+            answer: 0,
+            explanation: "শূন্য গ্রুপে অ্যামোনিয়াম আয়ন শনাক্ত করার জন্য নেসলার দ্রবণ ব্যবহার করা হয়।"
+        },
+        {
+            question: "২. ১ম গ্রুপের ক্যাটায়ন হিসেবে কোন আয়নটি লঘু HCl যোগ করলে অধঃক্ষিপ্ত হয়?",
+            options: ["Cu2+", "Fe3+", "Pb2+", "Al3+"],
+            answer: 2,
+            explanation: "১ম গ্রুপের গ্রুপ বিকারক লঘু HCl এবং এই গ্রুপে লেড আয়ন ক্লোরাইড লবণ হিসেবে অধঃক্ষিপ্ত হয়।"
+        },
+        {
+            question: "৩. ২য় গ্রুপের ক্যাটায়ন অধঃক্ষিপ্ত করার জন্য মাধ্যমটি কেমন হতে হয়?",
+            options: ["অম্লীয় মাধ্যম (HCl যুক্ত)", "ক্ষারীয় মাধ্যম", "সম্পূর্ণ নিরপেক্ষ মাধ্যম", "যেকোনো মাধ্যম"],
+            answer: 0,
+            explanation: "২য় গ্রুপের ক্যাটায়নসমূহকে H2S গ্যাসের সাহায্যে অধঃক্ষিপ্ত করতে অম্লীয় মাধ্যম প্রয়োজন।"
+        },
+        {
+            question: "৪. ৩য় গ্রুপের গ্রুপ বিকারক হিসেবে নিচের কোনটি ব্যবহৃত হয়?",
+            options: ["NH4OH", "NH4Cl + NH4OH", "H2S + HCl", "NaOH"],
+            answer: 1,
+            explanation: "৩য় গ্রুপের গ্রুপ বিকারক হলো অ্যামোনিয়াম ক্লোরাইড ও অ্যামোনিয়াম হাইড্রোক্সাইডের মিশ্রণ।"
+        },
+        {
+            question: "৫. ৩য় গ্রুপে সাধারণত কোন ক্যাটায়নগুলো হাইড্রোক্সাইড রূপে অধঃক্ষিপ্ত হয়?",
+            options: ["Fe3+, Al3+, Cr3+", "Cu2+, Cd2+", "Zn2+, Mn2+", "Ca2+, Ba2+"],
+            answer: 0,
+            explanation: "৩য় গ্রুপে লোহা, অ্যালুমিনিয়াম এবং ক্রোমিয়াম আয়নসমূহ তাদের হাইড্রোক্সাইড হিসেবে অধঃক্ষিপ্ত হয়।"
+        },
+        {
+            question: "৬. ৪র্থ গ্রুপের গ্রুপ বিকারক হিসেবে কোনটি ব্যবহৃত হয়?",
+            options: ["লঘু HCl", "NH4Cl + NH4OH", "(NH4)2CO3", "H2S গ্যাস (ক্ষারীয় মাধ্যমে)"],
+            answer: 3,
+            explanation: "৪র্থ গ্রুপে অ্যামোনিয়াম ক্লোরাইড ও অ্যামোনিয়াম হাইড্রোক্সাইডের উপস্থিতিতে H2S গ্যাস চালনা করা হয়।"
+        },
+        {
+            question: "৭. ৫ম গ্রুপের গ্রুপ বিকারক কোনটি?",
+            options: ["(NH4)2CO3", "Na2CO3", "BaCl2", "K2SO4"],
+            answer: 0,
+            explanation: "৫ম গ্রুপের ক্যাটায়ন শনাক্তকরণে অ্যামোনিয়াম কার্বনেট ব্যবহার করা হয়।"
+        },
+        {
+            question: "৮. ৬ষ্ঠ গ্রুপে বা অবশিষ্ট গ্রুপে সাধারণত কোন আয়নটি শনাক্ত করা হয়?",
+            options: ["Mg2+", "Na+", "K+", "NH4+"],
+            answer: 0,
+            explanation: "৬ষ্ঠ বা অবশিষ্ট গ্রুপে ম্যাগনেসিয়াম আয়ন শনাক্ত করা হয়।"
+        },
+        {
+            question: "৯. পটাশিয়াম পারম্যাঙ্গানেট ল্যাবরেটরিতে কোন ধরনের পদার্থ হিসেবে পরিচিত?",
+            options: ["প্রাইমারি স্ট্যান্ডার্ড পদার্থ", "সেকেন্ডারি স্ট্যান্ডার্ড পদার্থ", "প্রাকৃতিক নির্দেশক", "নিষ্ক্রিয় দ্রাবক"],
+            answer: 1,
+            explanation: "পটাশিয়াম পারম্যাঙ্গানেট একটি সেকেন্ডারি স্ট্যান্ডার্ড পদার্থ কারণ এটি সহজে বিশুদ্ধ অবস্থায় পাওয়া যায় না।"
+        },
+        {
+            question: "১০. KMnO4 ও FeSO4 টাইটেশনে আলাদাভাবে কোনো নির্দেশক লাগে না কেন?",
+            options: ["এটি প্রশমন বিক্রিয়া", "KMnO4 নিজেই একটি স্বয়ং নির্দেশক", "বিক্রিয়কগুলো বর্ণহীন", "নির্দেশক ছাড়া বিক্রিয়া চলে না"],
+            answer: 1,
+            explanation: "KMnO4 নিজেই তীব্র বেগুনি রঙের হওয়ায় অতিরিক্ত এক ফোঁটা দ্রবণ পড়লেই হালকা গোলাপি বর্ণ ধারণ করে।"
+        },
+        {
+            question: "১১. Fe2+ ও KMnO4 এর টাইটেশনে অম্লীয় মাধ্যম তৈরি করতে কোন এসিড ব্যবহার করা হয়?",
+            options: ["লঘু H2SO4", "লঘু HCl", "গাঢ় HNO3", "এসিটিক এসিড"],
+            answer: 0,
+            explanation: "লঘু সালফিউরিক এসিড ব্যবহার করা হয়। হাইড্রোক্লোরিক এসিড ব্যবহার করা যায় না।"
+        },
+        {
+            question: "১২. KMnO4 টাইটেশনের সমাপ্তি বিন্দুতে দ্রবণের বর্ণ পরিবর্তন কীরূপ হয়?",
+            options: ["বর্ণহীন থেকে স্থায়ী হালকা গোলাপি", "হলুদ থেকে গাঢ় নীল", "গোলাপী থেকে বর্ণহীন", "সবুজ থেকে হলুদ"],
+            answer: 0,
+            explanation: "টাইটেশনের সমাপ্তি বিন্দুতে বর্ণহীন দ্রবণ হালকা গোলাপি বর্ণ ধারণ করে।"
+        },
+        {
+            question: "১৩. প্রাইমারি স্ট্যান্ডার্ড পদার্থের একটি মূল বৈশিষ্ট্য হলো—",
+            options: ["বাতাসে এর ওজন পরিবর্তিত হয়", "বিশুদ্ধ অবস্থায় পাওয়া যায় না", "বাতাসে এর ওজন ও রাসায়নিক গঠন অপরিবর্তিত থাকে", "দ্রবণে পলি পড়ে"],
+            answer: 2,
+            explanation: "প্রাইমারি স্ট্যান্ডার্ড পদার্থ বাতাসে স্থিতিশীল থাকে এবং এর ওজন বা গঠন সহজে পরিবর্তিত হয় না।"
+        },
+        {
+            question: "১৪. অক্সালিক এসিড কোন ধরনের পদার্থ?",
+            options: ["প্রাইমারি স্ট্যান্ডার্ড পদার্থ", "সেকেন্ডারি স্ট্যান্ডার্ড পদার্থ", "শক্তিশালী ক্ষার", "লবণ"],
+            answer: 0,
+            explanation: "অক্সালিক এসিড একটি আদর্শ প্রাইমারি স্ট্যান্ডার্ড পদার্থ।"
+        },
+        {
+            question: "১৫. নেসলার বিকারক দ্বারা কোন আয়নটি নিশ্চিতভাবে শনাক্ত করা হয়?",
+            options: ["Na+", "NH4+", "Fe2+", "Cl-"],
+            answer: 1,
+            explanation: "নেসলার বিকারক যোগ করলে অ্যামোনিয়াম আয়নের উপস্থিতিতে বাদামী বর্ণের অধঃক্ষেপ উৎপন্ন হয়।"
+        },
+        {
+            question: "১৬. ক্লোরাইড আয়ন শনাক্তকরণে কোন বিকারক ব্যবহার করা হয়?",
+            options: ["AgNO3 ও লঘু HNO3", "BaCl2 দ্রবণ", "নেসলার বিকারক", "ফেনলফ্যাথ্যালিন"],
+            answer: 0,
+            explanation: "সিলভার নাইট্রেট ও লঘু নাইট্রিক এসিড যোগ করলে সাদা রঙের সিলভার ক্লোরাইডের অধঃক্ষেপ পড়ে।"
+        },
+        {
+            question: "১৭. সালফেট আয়ন শনাক্তকরণে কোন অধঃক্ষেপ পাওয়া যায়?",
+            options: ["সাদা অধঃক্ষেপ", "হলুদ অধঃক্ষেপ", "লাল অধঃক্ষেপ", "নীল অধঃক্ষেপ"],
+            answer: 0,
+            explanation: "বেরিয়াম ক্লোরাইড দ্রবণ ও লঘু HCl যোগ করলে সালফেট আয়নের উপস্থিতিতে বেরিয়াম সালফেটের সাদা অধঃক্ষেপ পড়ে।"
+        },
+        {
+            question: "১৮. শিখা পরীক্ষায় ক্যালসিয়াম আয়ন কী রঙের শিখা প্রদর্শন করে?",
+            options: ["ইট-লাল", "সোনালী হলুদ", "কাঁচা সবুজ", "নিষ্ক্রিয় নীল"],
+            answer: 0,
+            explanation: "ক্যালসিয়াম আয়ন শিখা পরীক্ষায় ইট-লাল বর্ণ প্রদর্শন করে।"
+        },
+        {
+            question: "১৯. কপার আয়নের সাথে অতিরিক্ত NH4OH যোগ করলে কী রঙের দ্রবণ গঠিত হয়?",
+            options: ["গভীর নীল রঙের জটিল আয়ন", "সবুজ রঙের দ্রবণ", "হলুদ দ্রবণ", "সাদা অধঃক্ষেপ"],
+            answer: 0,
+            explanation: "অতিরিক্ত অ্যামোনিয়াম হাইড্রোক্সাইড যোগ করলে গভীর নীল রঙের জটিল দ্রবণ তৈরি হয়।"
+        },
+        {
+            question: "২০. প্রমাণ দ্রবণ বলতে কী বোঝায়?",
+            options: ["যে দ্রবণের ঘনমাত্রা নির্দিষ্ট ও নিখুঁতভাবে জানা থাকে", "যে দ্রবণের ঘনমাত্রা অজানা", "সম্পৃক্ত দ্রবণ", "কলয়েডীয় দ্রবণ"],
+            answer: 0,
+            explanation: "যে দ্রবণের নির্দিষ্ট তাপমাত্রায় সঠিক ঘনমাত্রা জানা থাকে তাকে প্রমাণ দ্রবণ বলে।"
+        },
+        {
+            question: "২১. অম্লীয় মাধ্যমে KMnO4 বিজারিত হয়ে কোন আয়নে পরিণত হয়?",
+            options: ["Mn2+", "MnO2", "Mn4+", "Mn2O7"],
+            answer: 0,
+            explanation: "অম্লীয় মাধ্যমে পটাশিয়াম পারম্যাঙ্গানেটের ম্যাঙ্গানিজ জারণ অবস্থা +7 থেকে বিজারিত হয়ে বর্ণহীন ম্যাঙ্গানাস আয়নে পরিণত হয়।"
+        },
+        {
+            question: "২২. লবণ বিশ্লেষণে ক্যাটায়নকে মোট কয়টি গ্রুপে ভাগ করা হয়েছে?",
+            options: ["৪টি", "৫টি", "৬টি (গ্রুপ শূন্য থেকে ৫)", "৭টি"],
+            answer: 2,
+            explanation: "লবণ বিশ্লেষণে ক্যাটায়নসমূহকে গ্রুপ শূন্য থেকে গ্রুপ ৫ পর্যন্ত মোট ৬টি গ্রুপে ভাগ করা হয়েছে।"
+        },
+        {
+            question: "২৩. ফেরাস সালফেট দ্রবণের সাথে KMnO4 এর বিক্রিয়ায় Fe2+ কিসে জারিত হয়?",
+            options: ["Fe3+ (ফেরিক আয়ন)", "ধাতব লোহা", "ফেরাস অক্সাইড", "অপরিবর্তিত থাকে"],
+            answer: 0,
+            explanation: "জারণ-বিজারণ টাইটেশনে ফেরাস আয়ন ইলেকট্রন বর্জন করে ফেরিক আয়নে জারিত হয়।"
+        },
+        {
+            question: "২৪. কার্বনেট আয়ন শনাক্তকরণে কোন গ্যাস নির্গত হয়?",
+            options: ["CO2 গ্যাস", "SO2 গ্যাস", "H2S গ্যাস", "NH3 গ্যাস"],
+            answer: 0,
+            explanation: "লবণে লঘু এসিড যোগ করলে কার্বনেট আয়নের উপস্থিতিতে বুদবুদসহ বর্ণহীন কার্বন ডাই-অক্সাইড গ্যাস নির্গত হয়।"
+        },
+        {
+            question: "২৫. নির্গত গ্যাসটি কার্বন ডাই-অক্সাইড কি না, তা নিশ্চিত করতে কোন বিকারক ব্যবহার করা হয়?",
+            options: ["চুনাজলের স্বচ্ছ দ্রবণ", "নেসলার দ্রবণ", "ব্লিচিং পাউডার", "লঘু HCl"],
+            answer: 0,
+            explanation: "CO2 গ্যাস চুনাজলের মধ্য দিয়ে চালনা করলে চুনাজল ঘোলা হয়ে যায়।"
+        },
+        {
+            question: "২৬. সোডিয়াম কার্বনেট কোন ধরনের পদার্থ?",
+            options: ["প্রাইমারি স্ট্যান্ডার্ড পদার্থ", "সেকেন্ডারি স্ট্যান্ডার্ড পদার্থ", "দুর্বল এসিড", "তীব্র এসিড"],
+            answer: 0,
+            explanation: "সোডিয়াম কার্বনেট একটি আদর্শ প্রাইমারি স্ট্যান্ডার্ড পদার্থ।"
+        },
+        {
+            question: "২৭. সোডিয়াম হাইড্রোক্সাইডকে প্রাইমারি স্ট্যান্ডার্ড পদার্থ হিসেবে ব্যবহার করা যায় না কেন?",
+            options: ["এটি বায়ুর CO2 ও জলীয় বাষ্প শোষণ করে", "এটি অত্যন্ত ব্যয়বহুল", "এটি পানিতে অদ্রবণীয়", "এটি রঙিন"],
+            answer: 0,
+            explanation: "এটি আর্দ্রতা ও কার্বন ডাই-অক্সাইড শোষণ করে, তাই এটি সেকেন্ডারি স্ট্যান্ডার্ড।"
+        },
+        {
+            question: "২৮. টাইটেশনে বুরেটে কোন দ্রবণ নেওয়া হয়?",
+            options: ["প্রমাণ দ্রবণ", "অজানা ঘনমাত্রার দ্রবণ", "নিষ্ক্রিয় পানি", "নির্দেশক"],
+            answer: 0,
+            explanation: "সাধারণত বুরেটে প্রমাণ দ্রবণ বা জারক রাখা হয়।"
+        },
+        {
+            question: "২৯. টাইটেশনের সময় পিপেট দিয়ে কী পরিমাপ করা হয়?",
+            options: ["নির্দিষ্ট আয়তনের নমুনা দ্রবণ", "সঠিক ভর", "তাপমাত্রা", "পিএইচ (pH)"],
+            answer: 0,
+            explanation: "পিপেট ব্যবহার করে নির্দিষ্ট আয়তনের দ্রবণ নিখুঁতভাবে মাপা হয়।"
+        },
+        {
+            question: "৩০. টাইটেশনের সময় কনিক্যাল ফ্ল্যাক্সে নিচের কোনটি নেওয়া হয়?",
+            options: ["নমুনা দ্রবণ বা অজানা ঘনমাত্রার দ্রবণ", "সবসময় KMnO4", "শুধুমাত্র নির্দেশক", "পাতিত পানি"],
+            answer: 0,
+            explanation: "কনিক্যাল ফ্লাক্সে নমুনা দ্রবণ বা বিজারক নেওয়া হয়।"
+        },
+        {
+            question: "৩১. সোডিয়াম আয়ন শিখা পরীক্ষায় কী রঙের শিখা প্রদর্শন করে?",
+            options: ["সোনালী হলুদ", "ইট-লাল", "গোলাপি", "সবুজ"],
+            answer: 0,
+            explanation: "সোডিয়াম লবণের উপস্থিতিতে শিখা পরীক্ষায় উজ্জ্বল সোনালী হলুদ শিখা দেখা যায়।"
+        },
+        {
+            question: "৩২. পটাশিয়াম আয়ন শিখা পরীক্ষায় কী বর্ণ দেখায়?",
+            options: ["হালকা বেগুনি বা নীলচে বেগুনি", "লাল", "সবুজ", "হলুদ"],
+            answer: 0,
+            explanation: "পটাশিয়াম আয়নের কারণে শিখা পরীক্ষার সময় হালকা বেগুনি শিখা দেখা যায়।"
+        },
+        {
+            question: "৩৩. অ্যামোনিয়াম লবণকে সবল ক্ষার দিয়ে গরম করলে কোন গ্যাসের গন্ধ পাওয়া যায়?",
+            options: ["ঝাঁঝালো গন্ধযুক্ত অ্যামোনিয়া গ্যাস", "পচা ডিমের গন্ধযুক্ত গ্যাস", "রসুনের গন্ধ", "কোনো গন্ধ থাকে না"],
+            answer: 0,
+            explanation: "অ্যামোনিয়াম লবণ ক্ষারের সাথে বিক্রিয়া করে ঝাঁঝালো অ্যামোনিয়া গ্যাস উৎপন্ন করে।"
+        },
+        {
+            question: "৩৪. নাইট্রেট আয়ন শনাক্তকরণে রিং টেস্টে কিসের রিং তৈরি হয়?",
+            options: ["বাদামী রঙের রিং", "সবুজ রিং", "নীল রিং", "লাল রিং"],
+            answer: 0,
+            explanation: "নাইট্রেট আয়ন শনাক্তকরণের রিং টেস্টে জটিল যৌগের কারণে বাদামী রিং তৈরি হয়।"
+        },
+        {
+            question: "৩৫. জারণ-বিজারণ টাইটেশনে KMnO4 কোন ভূমিকা পালন করে?",
+            options: ["জারক হিসেবে", "বিজারক হিসেবে", "নির্দেশক হিসেবে", "প্রমশমক হিসেবে"],
+            answer: 0,
+            explanation: "KMnO4 একটি শক্তিশালী জারক পদার্থ।"
+        },
+        {
+            question: "৩৬. বুরেটের রিডিং নেওয়ার সময় চোখের দৃষ্টির অবস্থান কেমন হওয়া উচিত?",
+            options: ["মেনিস্কাসের তল বরাবর লম্বভাবে", "উপরের দিক থেকে তির্যকভাবে", "নিচের দিক থেকে তির্যকভাবে", "যেকোনো দিক থেকে"],
+            answer: 0,
+            explanation: "বুরেটের তরলের নিচের মেনিস্কাসের সাথে চোখের দৃষ্টি সমান স্তরে রেখে রিডিং নিতে হয়।"
+        },
+        {
+            question: "৩৭. ফেনলফ্যাথ্যালিন কোন ধরনের টাইটেশনে নির্দেশক হিসেবে কাজ করে?",
+            options: ["এসিড-ক্ষার টাইটেশনে", "জারক-বিজারক টাইটেশনে", "অধঃক্ষেপণ টাইটেশনে", "সব টাইটেশনে"],
+            answer: 0,
+            explanation: "ফেনলফ্যাথ্যালিন এসিড-ক্ষার টাইটেশনে নির্দেশক হিসেবে ব্যবহৃত হয়।"
+        },
+        {
+            question: "৩৮. মিথাইল অরেঞ্জের অম্লীয় মাধ্যমে বর্ণ কেমন হয়?",
+            options: ["গোলাপি বা লাল", "হলুদ", "বর্ণহীন", "নীল"],
+            answer: 0,
+            explanation: "মিথাইল অরেঞ্জ নির্দেশক অম্লীয় মাধ্যমে গোলাপি বা লাল বর্ণ দেয়।"
+        },
+        {
+            question: "৩৯. লবণ বিশ্লেষণে শুষ্ক পরীক্ষা কেন করা হয়?",
+            options: ["প্রাথমিকভাবে মূলকের উপস্থিতি অনুমান করতে", "চূড়ান্ত নিশ্চিতকরণের জন্য", "দ্রবণ তৈরি করতে", "টাইটেশন করতে"],
+            answer: 0,
+            explanation: "শুষ্ক পরীক্ষার মাধ্যমে লবণে সম্ভাব্য মূলক সম্পর্কে প্রাথমিক ধারণা পাওয়া যায়।"
+        },
+        {
+            question: "৪০. লিটমাস পেপারের সাহায্যে দ্রবণের কী পরীক্ষা করা হয়?",
+            options: ["দ্রবণটি অম্লীয় নাকি ক্ষারীয় তা জানা", "দ্রবণের ঘনমাত্রা মাপা", "তাপমাত্রা মাপা", "দ্রবণের স্ফুটনাঙ্ক মাপা"],
+            answer: 0,
+            explanation: "লিটমাস পেপার দ্রবণের প্রকৃতি নির্দেশ করে।"
+        },
+        {
+            question: "৪১. ল্যাবরেটরিতে টেস্টটিউব পরিষ্কার করতে কোন এসিড ব্যবহার করা হয়?",
+            options: ["লঘু HCl", "গাঢ় H2SO4", "নাইট্রিক এসিড", "কার্বনিক এসিড"],
+            answer: 0,
+            explanation: "ল্যাবরেটরিতে যন্ত্রপাতি পরিষ্কার করতে প্রায়শই লঘু হাইড্রোক্লোরিক এসিড ব্যবহার করা হয়।"
+        },
+        {
+            question: "৪২. পটাশিয়াম ডাইক্রোমেট কোন ধরনের পদার্থ?",
+            options: ["প্রাইমারি স্ট্যান্ডার্ড পদার্থ", "সেকেন্ডারি স্ট্যান্ডার্ড পদার্থ", "নির্দেশক", "বিজারক"],
+            answer: 0,
+            explanation: "পটাশিয়াম ডাইক্রোমেট একটি আদর্শ প্রাইমারি স্ট্যান্ডার্ড পদার্থ।"
+        },
+        {
+            question: "৪৩. সোডিয়াম থায়োসালফেট কোন ধরনের পদার্থ?",
+            options: ["সেকেন্ডারি স্ট্যান্ডার্ড পদার্থ", "প্রাইমারি স্ট্যান্ডার্ড পদার্থ", "তীব্র এসিড", "গ্যাস"],
+            answer: 0,
+            explanation: "সোডিয়াম থায়োসালফেট একটি সেকেন্ডারি স্ট্যান্ডার্ড পদার্থ।"
+        },
+        {
+            question: "৪৪. টাইটেশন করার সময় কনিক্যাল ফ্লাক্সটি কেন ঝাঁকাতে হয়?",
+            options: ["দ্রবণগুলো ভালোভাবে মিশে বিক্রিয়া ত্বরান্বিত করতে", "দ্রবণ ঠান্ডা করতে", "রং দূর করতে", "বুদবুদ তৈরি করতে"],
+            answer: 0,
+            explanation: "সুষম মিশ্রণ ও দ্রুত বিক্রিয়ার জন্য কনিক্যাল ফ্লাক্সটি ক্রমাগত ঝাঁকাতে হয়।"
+        },
+        {
+            question: "৪৫. বুরেট ও পিপেট ব্যবহারের পূর্বে কী দ্বারা ধুয়ে নিতে হয়?",
+            options: ["প্রথমে পাতিত পানি এবং পরে যে দ্রবণ নেব তা দিয়ে", "শুধুমাত্র সাবান পানি দিয়ে", "শুষ্ক রাখতে হয়", "গরম তেল দিয়ে"],
+            answer: 0,
+            explanation: "পরিষ্কার করার পর যে দ্রবণ পরিমাপ করা হবে তা দিয়েই একবার রিন্স বা ধুয়ে নিতে হয়।"
+        },
+        {
+            question: "৪৬. লবণে এসিড যোগ করলে বুদবুদ ছাড়া গন্ধহীন গ্যাস নির্গত হলে এবং চুনাজল ঘোলা করলে কোন মূলক নিশ্চিত হয়?",
+            options: ["কার্বনেট মূলক", "সালফাইড মূলক", "ক্লোরাইড মূলক", "নাইট্রেট মূলক"],
+            answer: 0,
+            explanation: "এটি কার্বনেট মূলকের অন্যতম প্রধান বৈশিষ্ট্য।"
+        },
+        {
+            question: "৪৭. সল্ট অ্যানালাইসিসে মূল দ্রবণ তৈরিতে কোন দ্রাবক বহুল ব্যবহৃত?",
+            options: ["পাতিত পানি", "ইথানল", "বেনজিন", "ইথার"],
+            answer: 0,
+            explanation: "সাধারণত লবণ পানিতে দ্রবীভূত করে মূল দ্রবণ তৈরি করা হয়।"
+        },
+        {
+            question: "৪৮. পটাশিয়াম পারম্যাঙ্গানেট দ্রবণ রাখার জন্য সাধারণত কী ধরনের বুরেট ব্যবহার করা হয়?",
+            options: ["গ্লাস স্টপকটযুক্ত বুরেট", "রাবার নলযুক্ত বুরেট", "প্লাস্টিক বুরেট", "লোহার নল"],
+            answer: 0,
+            explanation: "KMnO4 শক্তিশালী জারক হওয়ায় রাবারকে জারিত করে, তাই গ্লাস স্টপকটযুক্ত বুরেট ব্যবহার করা হয়।"
+        },
+        {
+            question: "৪৯. প্র্যাকটিক্যাল পরীক্ষার সময় ভাইভাতে সাধারণত কোন বিষয়টির ওপর সবচেয়ে বেশি গুরুত্ব দেওয়া হয়?",
+            options: ["তত্ত্ব, কার্যপদ্ধতি, বিকারক ও বর্ণ পরিবর্তন", "মুখস্থ বিদ্যা", "হাতের লেখা", "খাতার ডিজাইন"],
+            answer: 0,
+            explanation: "ভাইভাতে মূলত মূলক শনাক্তকরণ বিক্রিয়া, গ্রুপ বিকারক এবং টাইটেশনের মূলনীতি সম্পর্কে জানতে চাওয়া হয়।"
+        },
+        {
+            question: "৫০. প্র্যাকটিক্যাল ল্যাবে কাজ করার সময় নিরাপত্তার জন্য কোন উপকরণের ব্যবহার বাধ্যতামূলক?",
+            options: ["ল্যাব অ্যাপ্রন ও সেফটি গ্লাস", "টাই ও কোট", "রঙিন চশমা", "টুপি"],
+            answer: 0,
+            explanation: "ল্যাবরেটরিতে এসিড ও কেমিক্যালের ছিটেফোঁটা থেকে সুরক্ষার জন্য অ্যাপ্রন পরা আবশ্যক।"
+        }
+    ];
+
+    function loadQuiz() {
+        const container = document.getElementById('questionsContainer');
+        let output = '';
+
+        quizData.forEach((q, index) => {
+            output += `
+                <div class="question-card" id="q-card-${index}">
+                    <div class="question-title">${q.question}</div>
+                    <ul class="options-list">
+            `;
+            q.options.forEach((opt, optIndex) => {
+                output += `
+                    <li class="option-item">
+                        <label class="option-label">
+                            <input type="radio" name="question-${index}" value="${optIndex}" onchange="handleOptionSelect(${index}, ${optIndex})">
+                            ${opt}
+                        </label>
+                    </li>
+                `;
+            });
+            output += `
+                    </ul>
+                    <div class="explanation" id="explanation-${index}"></div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = output;
+        updateProgress();
+    }
+
+    function handleOptionSelect(qIndex, selectedOptIndex) {
+        const q = quizData[qIndex];
+        const explanationDiv = document.getElementById(`explanation-${qIndex}`);
+        const isCorrect = selectedOptIndex === q.answer;
+
+        explanationDiv.style.display = 'block';
+        if (isCorrect) {
+            explanationDiv.className = 'explanation correct';
+            explanationDiv.innerHTML = `সঠিক! ${q.explanation}`;
+        } else {
+            explanationDiv.className = 'explanation incorrect';
+            explanationDiv.innerHTML = `ভুল! সঠিক উত্তর: "${q.options[q.answer]}" — ${q.explanation}`;
+        }
+
+        updateProgress();
+    }
+
+    function updateProgress() {
+        let answeredCount = 0;
+        quizData.forEach((_, index) => {
+            const selected = document.querySelector(`input[name="question-${index}"]:checked`);
+            if (selected) {
+                answeredCount++;
+            }
+        });
+        const progressPercentage = (answeredCount / quizData.length) * 100;
+        document.getElementById('progressBar').style.width = progressPercentage + '%';
+    }
+
+    function submitQuiz() {
+        let correctCount = 0;
+        let incorrectCount = 0;
+
+        quizData.forEach((q, index) => {
+            const selected = document.querySelector(`input[name="question-${index}"]:checked`);
+            if (selected) {
+                if (parseInt(selected.value) === q.answer) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            } else {
+                incorrectCount++; // unanswered counted as incorrect/unattempted
+            }
+
+            // Disable inputs after submission
+            const inputs = document.querySelectorAll(`input[name="question-${index}"]`);
+            inputs.forEach(input => input.disabled = true);
+        });
+
+        document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('retryBtn').style.display = 'inline-block';
+
+        // Display results
+        const percentage = ((correctCount / quizData.length) * 100).toFixed(1);
+        document.getElementById('mainScoreText').innerHTML = `আপনার ফাইনাল স্কোর: ${correctCount} / ${quizData.length} (${percentage}%)`;
+        document.getElementById('totalCorrect').innerText = correctCount;
+        document.getElementById('totalIncorrect').innerText = incorrectCount;
+        
+        document.getElementById('result-section').style.display = 'block';
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    function retryQuiz() {
+        loadQuiz();
+        document.getElementById('submitBtn').style.display = 'inline-block';
+        document.getElementById('retryBtn').style.display = 'none';
+        document.getElementById('result-section').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.onload = loadQuiz;
+</script>
+
+</body>
+</html>
